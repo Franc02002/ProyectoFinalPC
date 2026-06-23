@@ -1,0 +1,18 @@
+La concurrencia es la capacidad de un programa para manejar múltiples tareas que empiezan, se ejecutan y 
+se completan en periodos de tiempo solapados, pero no necesariamente al mismo instante exacto.
+    *La clave: Es el entrelazado. El procesador va saltando de una tarea a otra tan rápido que parece que 
+     ocurren a la vez (como un malabarista con varias pelotas, solo tiene una en la mano a la vez, pero 
+     mantiene todas en el aire).
+
+El paralelismo ocurre cuando esas tareas se ejecutan literalmente al mismo tiempo, en el mismo nanosegundo.
+    *La clave: Requiere hardware con múltiples núcleos o procesadores. Las tareas se reparten físicamente.
+
+SECCION CRITICA es el fragmento de codigo donde los hilos modifican el recurso compartido.
+
+(Safety)
+Para laburar una seccion critica se debe usar la p.reservada synchornized a la hora de declarar el metodo 
+o simplemente en la seccion si es que no todo el metodo es de la seccion critica.
+    -Metodos estaticos son para la Clase.
+    -Metodos noestaticos son para las Instancias(puedo usar el THIS para referenciar a la misma).
+
+
