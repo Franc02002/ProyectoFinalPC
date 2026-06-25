@@ -42,5 +42,9 @@ public class Parque {
         
     }
 
+    public void irSalaRv(Visitante visitante){
+        salaRv.ingresar(visitante);
+    }
+
 
 }

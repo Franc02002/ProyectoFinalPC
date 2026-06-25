@@ -1,7 +1,3 @@
-import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
@@ -29,8 +25,10 @@ public class MontaniaRusa {
     }
 
     public void ingresar(Visitante visitante){
+        boolean entroFila=false;
         try {
-            if(filaMontania.tryAcquire(1)){
+            if(filaMontania.tryAcquire()){
+                entroFila=true;
                 asientosCarrito.acquire();
                 filaMontania.release();
                 vehiculoMontania.await();
@@ -45,7 +43,10 @@ public class MontaniaRusa {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }finally{
-            filaMontania.release();
+            if(entroFila){
+                filaMontania.release();
+            }
+            
         }
 
     }
