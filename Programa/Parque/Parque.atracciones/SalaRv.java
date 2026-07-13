@@ -34,7 +34,7 @@ public class SalaRv {
             visores.release();
             manoplas.release(2);
             base.release();
-            visitante.obtenerFichas(20, 2);
+            visitante.obtenerFichas(20);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

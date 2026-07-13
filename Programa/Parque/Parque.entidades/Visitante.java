@@ -4,13 +4,12 @@
 
 public class Visitante implements Runnable{
 
-    private int fichasMR, fichasRV;
+    private int fichas;
     private String nombre;
 
     public Visitante(String nombre){
         this.nombre=nombre;
-        fichasMR=0;
-        fichasRV=0;
+        fichas= 0;
     }
 
 
@@ -19,16 +18,20 @@ public class Visitante implements Runnable{
 
     }
 
-    public void obtenerFichas(int cantidad,int tipo){
-        if(tipo==1){
-            fichasMR += cantidad;
-        }else{
-            fichasRV += cantidad;
-        }
+    public void obtenerFichas(int cantidad){
+        fichas= cantidad;
     }
 
     public String getName(){
         return nombre;
+    }
+
+    public int getCantidadFichas(){
+        return fichas;
+    }
+
+    public void restarFichas(int cantidad){
+        
     }
 
 }

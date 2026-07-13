@@ -3,6 +3,8 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 
 public class MontaniaRusa {
+    //Se utiliza una cyclicBarrir para asegurar que la montania rusa inicie al haber 5 personas dentro, al iniciar
+    //se simula la accion y luego los 5 hilos salen de la misma.
     private CyclicBarrier vehiculoMontania = new CyclicBarrier(5,() -> {
         System.out.println("El carro de la montania rusa esta completo y empezara en breve!"); 
         try {
@@ -24,6 +26,7 @@ public class MontaniaRusa {
 
     }
 
+    //El ingreso a la montania esta dividido por el ingreso a la fila para luego ingresar al juego, todo hilo debe tomar esos 2 permisos para completar la accion
     public void ingresar(Visitante visitante){
         boolean entroFila=false;
         try {
@@ -33,7 +36,7 @@ public class MontaniaRusa {
                 filaMontania.release();
                 vehiculoMontania.await();
                 asientosCarrito.release();
-                visitante.obtenerFichas(10,1);
+                visitante.obtenerFichas(10);
             }
             
         } catch (InterruptedException e) {
