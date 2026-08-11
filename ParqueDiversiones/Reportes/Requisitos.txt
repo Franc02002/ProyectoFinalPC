@@ -1,0 +1,65 @@
+Modelar un parque de diversiones que simule el comportamiento
+de atracciones,visitantes y empleados del parque.
+
+Consideraciones
+-Sincronizacion completa para evitar deadlock,inanicion o livelock.
+-Se debe garantizar que todos los visitantes visiten cada atraccion eventualmente.
+-USAR MANEJO DE EXCEPCIONES(TRYCATCH, FINALLY, ).
+-ASEGURAR EL USO CONCURRENTE Y SEGURO DE LOS RECURSOS COMPARTIDOS(Condicion de carrera y de que un recurso no sea 
+ modificado mientras otro lo estaba operando).
+-
+
+-USAR SEMAFOROS,MONITORES,REENTRANTLOCK, ademas de mecanismos propios de java (BlockingQueue,Exchanger,CyclicBarrier,..)
+
+FUNCIONAMIENTO
+-El parque esta ABIERTO de 9hs a 18hs
+-Las actividades CIERRAN 19hs
+-23hs el parque debe estar sin visitantes y encargados
+
+-El ingreso al parque es a traves de K molinetes
+
+-Existen visitantes(hilos) que recorren el parque
+
+-Se puede recorrer el shopping o las atracciones
+
+*El parque se divide en diferentes atracciones independientes 
+entre si pero sincronizados a traves de mecanismos*
+
+-El parque tiene varias atracciones y areas de descanso/estar
+    -Juegos mecanicos:
+        -Montaña rusa:
+            -Lleva MAX 5 personas y necesita que los
+            5 lugares esten ocupados para comenzar.
+            -Una ves empezado se debe esperar a que termine para subirse
+            devuelta.
+            -Existe un lugar de espera para esperar (xd).
+            -Si el lugar de esperar esta lleno, el visitante se va
+            -El visitante recibe MR fichas al usar la atraccion.
+
+        Autitos Chocadores:
+            -Maximo de 10 autos y no empieza hasta q esten todos llenos
+            -Requiere 2 personas por auto OBLIGATORIO
+            -El visitante recibe AC fichas al usar la atraccion.
+
+    -Realidad virtual:
+        -Se necesita un equipo VR completo (DOS manopas y UNA base) para
+        poder participar. (La cantidad de cada elemento varia)
+        -El ENCARGADO proporciona los elementos al VISITANTE.
+        -Hasta que no tiene los elementos NO INGRESA a la atraccion y debe esperar
+        -El visitante recibe RV fichas al participar.
+
+    -Area de premios
+        -En esta area se puede canjear las distintas fichas por premios.
+        -El VISITANTE le da una cant. de fichas al Encargado y recibe premio.
+        -El premio depende de la cant. de fichas entregadas.
+        -Cada premio tiene un valor asociado en fichas.
+
+    -Comedor del parque
+        -Los visitantes se sientan en grupo de 4 personas para almozar.
+            -Cuando se llena la mesa recien pueden comer y lo hacen todos a la ves.
+        -Si el comedor esta lleno la gente puede esperar o se puede ir.
+
+    -Teatro con espectaculos
+        -El espectaculo se realiza cada X tiempo
+        -Al espectaculo pueden ingresar maximo 20 personas pero ingresan en grupos de a 5.
+
