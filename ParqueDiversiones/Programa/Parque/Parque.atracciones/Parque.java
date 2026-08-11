@@ -1,16 +1,15 @@
-
 import java.util.concurrent.Semaphore;
 
 public class Parque {
     private MontaniaRusa montania;
     private SalaRv salaRv;
     private AreaPremios areaPremios;
-    private ComedorParque comedorParque;
+    private Comedor comedorParque;
     private Teatro teatro;
     private Semaphore molinete;
     
 
-    public Parque(MontaniaRusa montania, SalaRv salaRv, AreaPremios areaPremios, ComedorParque comedorParque, Teatro teatro, int cantMolinetes){
+    public Parque(MontaniaRusa montania, SalaRv salaRv, AreaPremios areaPremios, Comedor comedorParque, Teatro teatro, int cantMolinetes){
         this.montania= montania;
         this.salaRv= salaRv;
         this.areaPremios = areaPremios;
@@ -44,6 +43,18 @@ public class Parque {
 
     public void irSalaRv(Visitante visitante){
         salaRv.ingresar(visitante);
+    }
+
+    public void irTeatro(Visitante visitante){
+        teatro.entrarTeatro(visitante);
+    }
+
+    public void irComedor(Visitante visitante){
+        comedorParque.entrarComedor(visitante);
+    }
+
+    public void irAreaPremios(Visitante visitante){
+        areaPremios.canjearPremio(visitante);
     }
 
 

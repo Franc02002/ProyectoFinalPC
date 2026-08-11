@@ -23,7 +23,7 @@ public class AreaPremios {
         inventario.add(espadas);
     }
 
-    public synchronized void canjearPremio(Visitante visitante){
+    public void canjearPremio(Visitante visitante){
         System.out.println(visitante.getName() + " Ha ingresado al area de premios");
         
         int fichasVisitante = visitante.getCantidadFichas();
@@ -31,8 +31,7 @@ public class AreaPremios {
         if (fichasVisitante >= 30) {
             List<Premio> premiosAlcanzables = new ArrayList<>();
             
-            for (Premio p : inventario) {
-                
+            for (Premio p : inventario) {         
                 if (fichasVisitante >= p.getValor()) { 
                     premiosAlcanzables.add(p);
                 }
@@ -43,9 +42,8 @@ public class AreaPremios {
 
             
             visitante.restarFichas(premioElegido.getValor());
-            
-            System.out.println(visitante.getName() + " cambió " + 
-                               premioElegido.getValor() + " fichas por un/a: " + premioElegido.getNombre());
+            visitante.agregarPremio(premioElegido);
+            System.out.println(visitante.getName() + " cambió " + premioElegido.getValor() + " fichas por un/a: " + premioElegido.getNombre());
 
         } else {
             System.out.println(visitante.getName() + " Aun no tiene fichas suficientes para canjear un premio");
