@@ -1,44 +1,56 @@
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class SalaRv {
-    private Semaphore visores,manoplas,base;
-    private ReentrantLock encargado;
+    // Recursos de la salaRV
+    private Semaphore visores = new Semaphore(10);
+    private Semaphore manoplas = new Semaphore(7);
+    private Semaphore base = new Semaphore(10);
 
+    // Utilizo una cola donde el encargado deja los kits completos
+    private BlockingQueue<String> mostradorKits = new ArrayBlockingQueue<>(5);
 
-    public SalaRv(){
-        visores= new Semaphore(10);
-        manoplas= new Semaphore(7);
-        base= new Semaphore(10);
-        encargado = new ReentrantLock();
+    public Semaphore getVisores() {
+        return visores;
     }
 
-    public void ingresar(Visitante visitante){
-        boolean tomoVisor=false,
-                tomoManopla=false,
-                tomoBase=false;
-        System.out.println(visitante.getName() + "Ha ingresado al sector de RV");
-        try {
-            visores.acquire();
-            System.out.println(visitante.getName() + "Se equipo con las gafas RV");
-            manoplas.acquire(2);
-            System.out.println(visitante.getName() + "Se equipo con ambas manoplas");
-            base.acquire();
-            System.out.println(visitante.getName() + "Se equipo con la base");
-            System.out.println(visitante.getName() + "Tiene el equipo completo y acaba de ingresar a la actividad RV");
-            Thread.sleep(10000);
-            System.out.println(visitante.getName() + "Devolvio todo el equipo RV,obtuvo fichas RV por participar!");
-            visitante.obtenerFichas(20);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } finally{    
-                visores.release();
-                manoplas.release(2);           
-                base.release();
-            
-          }
-        
+    public Semaphore getManoplas() {
+        return manoplas;
+    }
 
+    public Semaphore getBase() {
+        return base;
+    }
+
+    public BlockingQueue<String> getMostradorKits() {
+        return mostradorKits;
+    }
+
+    public void ingresar(Visitante visitante) {
+        System.out.println(visitante.getName() + " hace fila para VR...");
+        boolean tieneKit = false;
+
+        try {
+            // El visitante espera un kit listo
+            String kit = mostradorKits.take();
+            tieneKit = true; // La bandera se vuelve true si el visitante tomo un kit.
+
+            System.out.println(visitante.getName() + " recibió su " + kit + " y empieza a jugar.");
+            Thread.sleep(8000);
+
+            System.out.println(visitante.getName() + " terminó VR, devuelve las partes y gana 20 fichas.");
+            visitante.obtenerFichas(20);
+
+        } catch (InterruptedException e) {
+            System.out.println(visitante.getName() + " se fue de VR por cierre del parque.");
+        } finally {
+            // Solo devuelve las piezas si tomo un kit(bandera en true).
+            if (tieneKit) {
+                visores.release();
+                manoplas.release(2);
+                base.release();
+            }
+        }
     }
 }

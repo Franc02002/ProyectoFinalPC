@@ -1,53 +1,62 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.Exchanger;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class AreaPremios {
-    private int fichas;
-    private Premio peluches,aviones,barcos,figurasColeccion,espadas;
+    //Una lista de tipo Premio que representa el inventario de premios disponibles.
     private List<Premio> inventario;
+    
+    // Exchanger para fichas y premios, de manera que el visitante interactue con el encargadoAP y Lock para hacer fila
+    private Exchanger<Integer> intercambioFichas = new Exchanger<>();
+    private Exchanger<Premio> intercambioPremio = new Exchanger<>();
+    private ReentrantLock mostrador = new ReentrantLock();
 
-
-    public AreaPremios(){
-        fichas= 0;
-        peluches= new Premio("peluche", 30);
-        aviones=new Premio("avion", 60);
-        barcos=new Premio("barco", 70);
-        figurasColeccion=new Premio("figuraColeccion", 100);
-        espadas=new Premio("espada", 50);  
-        inventario= new ArrayList<>();
-        inventario.add(peluches);
-        inventario.add(aviones);
-        inventario.add(barcos);
-        inventario.add(figurasColeccion);
-        inventario.add(espadas);
+    public AreaPremios() {
+        inventario = new ArrayList<>();
+        inventario.add(new Premio("peluche", 30));
+        inventario.add(new Premio("avion", 60));
+        inventario.add(new Premio("barco", 70));
+        inventario.add(new Premio("figuraColeccion", 100));
+        inventario.add(new Premio("espada", 50));  
     }
 
-    public void canjearPremio(Visitante visitante){
-        System.out.println(visitante.getName() + " Ha ingresado al area de premios");
+    public List<Premio> getInventario() {
+        return inventario; }
+
+    public Exchanger<Integer> getIntercambioFichas() { 
+        return intercambioFichas; }
+
+    public Exchanger<Premio> getIntercambioPremio() { 
+        return intercambioPremio; }
+
+    public void canjearPremio(Visitante visitante) {
+        int misFichas = visitante.getCantidadFichas();
         
-        int fichasVisitante = visitante.getCantidadFichas();
-
-        if (fichasVisitante >= 30) {
-            List<Premio> premiosAlcanzables = new ArrayList<>();
-            
-            for (Premio p : inventario) {         
-                if (fichasVisitante >= p.getValor()) { 
-                    premiosAlcanzables.add(p);
+        //Si no tengo la cantidad minima de fichas para canjear un premio, no hago nada. 
+        if (misFichas >= 15) {
+            mostrador.lock(); // El visitante hace fila para hablar con el encargado y solo uno puede estar en el mostrador a la vez.
+            try {    
+                System.out.println(visitante.getName() + " se acerca al mostrador de premios con " + misFichas + " fichas.");
+                
+                // Le da las fichas al encargado (el encargado se encarga de restarlas).
+                intercambioFichas.exchange(misFichas);
+                
+                // Recibe el premio del encargado.
+                Premio premioGanado = intercambioPremio.exchange(null);
+                
+                if (premioGanado != null) {
+                    visitante.restarFichas(premioGanado.getValor());
+                    visitante.agregarPremio(premioGanado);
+                    System.out.println(visitante.getName() + " recibió su premio: " + premioGanado.getNombre());
                 }
+            } catch (InterruptedException e) {
+                System.out.println(visitante.getName() + " abandonó la fila de premios.");
+            } finally {
+                mostrador.unlock();
             }
-
-            int indiceRandom = ThreadLocalRandom.current().nextInt(premiosAlcanzables.size());
-            Premio premioElegido = premiosAlcanzables.get(indiceRandom);
-
-            
-            visitante.restarFichas(premioElegido.getValor());
-            visitante.agregarPremio(premioElegido);
-            System.out.println(visitante.getName() + " cambió " + premioElegido.getValor() + " fichas por un/a: " + premioElegido.getNombre());
-
         } else {
-            System.out.println(visitante.getName() + " Aun no tiene fichas suficientes para canjear un premio");
+            System.out.println(visitante.getName() + " no tiene fichas suficientes (Min: 15). Tiene: " + misFichas);
         }
     }
-    
 }

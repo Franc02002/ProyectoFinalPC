@@ -3,28 +3,39 @@
 // En cambio con implementar la interfaz Runnable puedo heredar comportamiento de otras clases */
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Visitante implements Runnable{
-
+public class Visitante implements Runnable {
     private int fichas;
     private String nombre;
-    private ArrayList<Premio> inventarioPremios;
     private Parque parque;
+    private List<Premio> inventarioPremios;
 
-    public Visitante(String nombre,Parque parque){
-        this.nombre=nombre;
-        fichas= 0;
-        this.parque= parque;
+    public Visitante(String nombre, Parque parque) {
+        this.nombre = nombre;
+        this.parque = parque;
+        this.fichas = 0;
+        this.inventarioPremios = new ArrayList<>();
     }
 
-
     @Override
-    public void run(){
-        parque.entrarPorMolineteParque(this);
-        for (int i = 0; i < 3; i++) {
-            int atraccion = ThreadLocalRandom.current().nextInt(4);
+    public void run() {
+        if (!parque.isIngresoHabilitado()) {
+            System.out.println(this.nombre + " llegó al parque después de las 18hs y encontró los molinetes cerrados.");
+            return;
+        }
 
+        parque.entrarPorMolineteParque(this);
+
+        for (int i = 0; i < 4; i++) {
+            if (!parque.isActividadesHabilitadas() || Thread.currentThread().isInterrupted()) {
+                System.out
+                        .println(this.nombre + " deja de hacer filas porque las atracciones cerraron a las 19:00 hs.");
+                break;
+            }
+
+            int atraccion = ThreadLocalRandom.current().nextInt(5);
             switch (atraccion) {
                 case 0:
                     parque.irMontania(this);
@@ -43,36 +54,38 @@ public class Visitante implements Runnable{
                     break;
             }
 
-            // Pausa entre atracciones para simular caminata por el parque
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                System.out.println(this.nombre + " abandonó el parque por desalojo general.");
+                return; // Corta la ejecución completa.
             }
+        }
+
+        // Al terminar el recorrido o al cerrar las actividades a las 19hs, va a los premios.
+        if (parque.isParqueAbierto() && !Thread.currentThread().isInterrupted()) {
+            parque.irAreaPremios(this);
+            System.out.println(this.nombre + " terminó su visita y sale del parque.");
         }
     }
 
-    public synchronized void obtenerFichas(int cantidad){
-        fichas+= cantidad;
+    public synchronized void obtenerFichas(int cantidad) {
+        fichas += cantidad;
     }
 
-    public String getName(){
+    public synchronized void restarFichas(int cantidad) {
+        fichas -= cantidad;
+    }
+
+    public String getName() {
         return nombre;
     }
 
-    public synchronized int getCantidadFichas(){
+    public synchronized int getCantidadFichas() {
         return fichas;
     }
 
-    public synchronized void restarFichas(int cantidad){
-        fichas-= cantidad;
-    }
-
-    public synchronized void agregarPremio(Premio p){
+    public synchronized void agregarPremio(Premio p) {
         inventarioPremios.add(p);
     }
-
-
-
 }
