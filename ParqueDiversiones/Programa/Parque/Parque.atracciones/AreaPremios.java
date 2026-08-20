@@ -14,8 +14,8 @@ public class AreaPremios {
 
     public AreaPremios() {
         inventario = new ArrayList<>();
-        inventario.add(new Premio("peluche", 30));
-        inventario.add(new Premio("avion", 60));
+        inventario.add(new Premio("peluche", 15));
+        inventario.add(new Premio("avion", 30));
         inventario.add(new Premio("barco", 70));
         inventario.add(new Premio("figuraColeccion", 100));
         inventario.add(new Premio("espada", 50));  

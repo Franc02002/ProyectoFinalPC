@@ -2,6 +2,7 @@ import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -19,12 +20,23 @@ public class Teatro {
     private boolean espectaculoComenzo = false;
 
     public void entrarTeatro(Visitante visitante) {
+    boolean entro = false;
+    try {
+        capacidadTeatro.acquire(); 
+        
         try {
-            capacidadTeatro.acquire(); 
-            
-            puertaGrupo.await();
-
-            lock.lock();
+            // Espera a que se junten 5 personas
+            puertaGrupo.await(5, TimeUnit.SECONDS);
+            entro = true; // Si pasa la barrera con éxito, cambiamos la bandera
+        } catch (TimeoutException e) {
+            System.out.println(visitante.getName() + " se cansó de esperar a que se complete el grupo para entrar al teatro y se marcha.");
+            puertaGrupo.reset(); // Se reestablece la barrera.
+            capacidadTeatro.release(); // Libera el permiso ya que no entró por su propia cuenta.
+        }
+        
+        // Solo intenta ver el show si superó la barrera
+        if (entro) {
+            lock.lock(); // ¡El lock debe ir ANTES de intentar modificar variables compartidas o usar variables de condición!
             try {
                 espectadoresAdentro++;
                 if (espectadoresAdentro == 1 || espectadoresAdentro == 20) {
@@ -38,12 +50,18 @@ public class Teatro {
                 }
                 System.out.println(visitante.getName() + " sale de la sala al finalizar el show.");
             } finally {
-                lock.unlock();
+                lock.unlock(); // Garantiza que se libere el cerrojo pase lo que pase
             }
-        } catch (InterruptedException | BrokenBarrierException e) {
-            System.out.println(visitante.getName() + " se retira de la fila del teatro.");
+        }
+        
+    } catch (InterruptedException | BrokenBarrierException e) {
+        System.out.println(visitante.getName() + " se retira de la fila del teatro.");
+        capacidadTeatro.release(); // ¡VITAL! Libera el permiso si el hilo es interrumpido o si la barrera se rompió por culpa del timeout de otro visitante.
+        if (e instanceof InterruptedException) {
+            Thread.currentThread().interrupt();
         }
     }
+}
 
     public void comenzarShow() {
         try {

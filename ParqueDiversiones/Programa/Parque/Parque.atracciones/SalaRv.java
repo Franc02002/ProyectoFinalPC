@@ -1,6 +1,7 @@
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 public class SalaRv {
     // Recursos de la salaRV
@@ -32,20 +33,29 @@ public class SalaRv {
         boolean tieneKit = false;
 
         try {
-            // El visitante espera un kit listo
-            String kit = mostradorKits.take();
-            tieneKit = true; // La bandera se vuelve true si el visitante tomo un kit.
+            // Espera un máximo de 3 segundos reales por un kit
+            String kit = mostradorKits.poll(3, TimeUnit.SECONDS);
 
-            System.out.println(visitante.getName() + " recibió su " + kit + " y empieza a jugar.");
-            Thread.sleep(8000);
+            if (kit == null) {
+                // Si devuelve null, se acabó el tiempo y no consiguió kit
+                System.out.println(visitante.getName() + " se cansó de esperar un kit de RV y se marcha.");
+            } else {
+                // Si el kit no es nulo, marca la bandera como verdadera y empieza a jugar
+                tieneKit = true;
+                System.out.println(visitante.getName() + " recibió su " + kit + " y empieza a jugar.");
 
-            System.out.println(visitante.getName() + " terminó VR, devuelve las partes y gana 20 fichas.");
-            visitante.obtenerFichas(20);
+                Thread.sleep(8000); // Recuerda balancear este tiempo con el de tu Reloj
+
+                System.out.println(visitante.getName() + " terminó VR, devuelve las partes y gana 20 fichas.");
+                visitante.obtenerFichas(20);
+            }
 
         } catch (InterruptedException e) {
             System.out.println(visitante.getName() + " se fue de VR por cierre del parque.");
+            Thread.currentThread().interrupt(); // Restablecemos la bandera
         } finally {
-            // Solo devuelve las piezas si tomo un kit(bandera en true).
+            // Como 'tieneKit' solo se vuelve true dentro del 'else',
+            // los que abandonaron no devolverán permisos que nunca tuvieron.
             if (tieneKit) {
                 visores.release();
                 manoplas.release(2);
@@ -53,4 +63,5 @@ public class SalaRv {
             }
         }
     }
+
 }

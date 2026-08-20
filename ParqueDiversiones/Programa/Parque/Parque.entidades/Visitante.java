@@ -29,13 +29,18 @@ public class Visitante implements Runnable {
         parque.entrarPorMolineteParque(this);
 
         for (int i = 0; i < 4; i++) {
-            if (!parque.isActividadesHabilitadas() || Thread.currentThread().isInterrupted()) {
+            if (Thread.currentThread().isInterrupted()) {
+                // Si fue interrumpido, es porque son las 23:00
+                System.out.println(this.nombre + " fue desalojado y se retira sin hacer más filas.");
+                break;
+            } else if (!parque.isActividadesHabilitadas()) {
+                // Si no está interrumpido, pero las actividades cerraron, son las 19:00
                 System.out
                         .println(this.nombre + " deja de hacer filas porque las atracciones cerraron a las 19:00 hs.");
                 break;
             }
 
-            int atraccion = ThreadLocalRandom.current().nextInt(5);
+            int atraccion = ThreadLocalRandom.current().nextInt(4);
             switch (atraccion) {
                 case 0:
                     parque.irMontania(this);
@@ -49,9 +54,6 @@ public class Visitante implements Runnable {
                 case 3:
                     parque.irTeatro(this);
                     break;
-                case 4:
-                    parque.irSalaRv(this);
-                    break;
             }
 
             try {
@@ -62,7 +64,8 @@ public class Visitante implements Runnable {
             }
         }
 
-        // Al terminar el recorrido o al cerrar las actividades a las 19hs, va a los premios.
+        // Al terminar el recorrido o al cerrar las actividades a las 19hs, va a los
+        // premios.
         if (parque.isParqueAbierto() && !Thread.currentThread().isInterrupted()) {
             parque.irAreaPremios(this);
             System.out.println(this.nombre + " terminó su visita y sale del parque.");

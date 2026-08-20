@@ -9,10 +9,11 @@ public class Reloj implements Runnable {
     public void run() {
         System.out.println("[09:00 hs] ¡Parque ABIERTO! Se habilitan los molinetes y las actividades.");
 
-        for (int hora = 9; hora <= 23; hora++) {
+
+        for (int hora = 10; hora <= 23; hora++) {
             try {
-                // Cada hora simulada dura 1.5 segundos reales
-                Thread.sleep(1500);
+                // Cada hora simulada dura 2 segundos reales
+                Thread.sleep(6000);
                 System.out.println("\n[RELOJ] Son las " + hora + ":00 hs.");
 
                 if (hora == 18) {
